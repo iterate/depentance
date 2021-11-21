@@ -18,8 +18,7 @@ defmodule DepentanceWeb.GraphLive do
   def render(assigns) do
     ~H"""
     <h1>depentance</h1>
-    do not worry and embrace the graph
-    <br />
+    <p>do not worry and embrace the graph</p>
     <form phx-change="set-package-input-name">
       <input type="text" name="name" value={@input_name} />
       <%= if @package do %>
