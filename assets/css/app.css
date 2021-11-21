@@ -1,3 +1,5 @@
+@import url(iosevka-curly.css);
+
 /* Alerts and form errors used by phx.new */
 .alert {
   padding: 15px;
@@ -86,6 +88,5 @@
 }
 
 * {
-  font-family: monospace;
-  font-weight: normal;
+  font-family: "Iosevka", monospace;
 }
