@@ -54,7 +54,11 @@ defmodule DepentanceWeb.GraphLive do
     {:noreply, socket}
   end
 
-  def handle_event("set-package-input-name", %{"version" => version}, socket) do
+  def handle_event(
+        "set-package-input-name",
+        %{"_target" => ["version"], "version" => version},
+        socket
+      ) do
     {:noreply, assign(socket, version_input: version)}
   end
 
