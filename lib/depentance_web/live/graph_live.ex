@@ -63,7 +63,15 @@ defmodule DepentanceWeb.GraphLive do
     live_pid = self()
 
     spawn(fn ->
-      GenServer.cast(live_pid, {:set_package, Depentance.Npm.get_package(name)})
+      response = Depentance.Npm.get_package_info(name)
+
+      case response do
+        {:ok, package} ->
+          GenServer.cast(live_pid, {:set_package, package})
+
+        _ ->
+          Logger.warn("Could not get package #{name}")
+      end
     end)
 
     {:noreply, assign(socket, input_name: name)}
