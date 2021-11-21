@@ -1,24 +1,14 @@
-defmodule Package do
-  import Ecto.Changeset
-
-  defstruct name: ""
-
-  def changeset(package, params \\ %{}) do
-    types = %{name: :string}
-
-    {package, types}
-    |> cast(params, [:name])
-    |> validate_required([:name])
-  end
-end
-
 defmodule DepentanceWeb.GraphLive do
+  require Logger
   use DepentanceWeb, :live_view
+
+  alias Depentance.Npm
 
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
-        package_input: Package.changeset(%Package{}),
+        input_name: nil,
+        version_input: nil,
         package: nil
       )
 
@@ -30,27 +20,52 @@ defmodule DepentanceWeb.GraphLive do
     <h1>depentance</h1>
     do not worry and embrace the graph
     <br />
-    <.form let={f} for={@package_input} phx-change="set-package">
-      <%= label f, :name %>
-      <%= text_input f, :name %>
+    <form phx-change="set-package-input-name">
+      <input type="text" name="name" value={@input_name} />
       <%= if @package do %>
-        <%= label f, :version %>
-        <%= select f, :version, @package.versions |> Enum.map(&Phoenix.HTML.Safe.to_iodata/1) %>
+      <select name="version">
+        <%= for version <- @package.versions do %>
+          <option value={version}><%= version %></option>
+        <% end %>
+      </select>
       <% end %>
-    </.form>
+    </form>
     <br />
     <%= if @package do %>
      <h2><%= @package.name %></h2>
      <p><%= @package.description %></p>
-     <DepentanceWeb.GraphComponent.graph package={@package} />
+     <p><%= Npm.Package.get_version(@package, @version_input) %> </p>
     <% end %>
     """
   end
 
-  def handle_event("set-package", %{"package" => params}, socket) do
-    package = Depentance.Npm.get_package(params["name"])
+  def handle_cast({:set_package, package}, socket) do
+    socket =
+      cond do
+        package && package.name == socket.assigns.input_name ->
+          assign(socket, package: package, version_input: List.first(package.versions))
 
-    socket = assign(socket, package: package)
+        package == nil ->
+          assign(socket, package: nil, version_input: nil)
+
+        true ->
+          socket
+      end
+
     {:noreply, socket}
+  end
+
+  def handle_event("set-package-input-name", %{"version" => version}, socket) do
+    {:noreply, assign(socket, version_input: version)}
+  end
+
+  def handle_event("set-package-input-name", %{"name" => name}, socket) do
+    live_pid = self()
+
+    spawn(fn ->
+      GenServer.cast(live_pid, {:set_package, Depentance.Npm.get_package(name)})
+    end)
+
+    {:noreply, assign(socket, input_name: name)}
   end
 end

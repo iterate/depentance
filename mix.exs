@@ -45,7 +45,8 @@ defmodule Depentance.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:phoenix_ecto, "~> 4.4"},
-      {:finch, "~> 0.9"}
+      {:finch, "~> 0.9"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 
