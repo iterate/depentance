@@ -25,13 +25,9 @@ defmodule Depentance.Npm do
 
   def pool_size, do: 25
 
-  def get_info(package_name) do
-    :get
-    |> Finch.build("https://registry.npmjs.org/#{package_name}")
-    |> Finch.request(__MODULE__)
-  end
-
   def get_package(package_name) do
+    Logger.info("Calling NPM Registry for info on pkg #{package_name}")
+
     {:ok, response} =
       Finch.build(:get, "https://registry.npmjs.org/#{package_name}")
       |> Finch.request(__MODULE__)
@@ -39,33 +35,6 @@ defmodule Depentance.Npm do
     case response.status do
       200 -> Package.from_json(response.body)
       _ -> nil
-    end
-  end
-
-  def get_versions(package_name) do
-    {:ok, response} = get_info(package_name)
-
-    response.body
-    |> Jason.decode!()
-    |> case do
-      %{"versions" => versions} -> versions
-      _ -> nil
-    end
-    |> Enum.map(fn {k, _v} -> Version.parse!(k) end)
-    |> Enum.sort(:desc)
-  end
-
-  def info(package_name, version \\ nil) do
-    package_ref = if version, do: "#{package_name}@#{version}", else: package_name
-
-    case System.cmd("npm", ["info", "--json", package_ref], stderr_to_stdout: true) do
-      {result, 0} ->
-        Logger.info("Calling NPM INFO for pkg #{package_ref}...OK")
-        {:ok, Jason.decode!(result)}
-
-      {err, 1} ->
-        Logger.info("Calling NPM INFO for pkg #{package_ref}...NOT OK")
-        {:error, err}
     end
   end
 end
