@@ -1,5 +1,11 @@
 @import url(iosevka-curly.css);
 
+:root {
+  --light: #fefefe;
+  --dark: #373435;
+  --red: #ed3237;
+}
+
 /* Alerts and form errors used by phx.new */
 .alert {
   padding: 15px;
@@ -87,6 +93,12 @@
   cursor: pointer;
 }
 
-* {
+html {
   font-family: "Iosevka", monospace;
+  background-color: var(--light);
+  color: var(--dark);
+}
+
+.deprecated {
+  color: var(--red);
 }
