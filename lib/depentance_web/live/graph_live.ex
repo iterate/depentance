@@ -9,7 +9,8 @@ defmodule DepentanceWeb.GraphLive do
       assign(socket,
         input_name: nil,
         version_input: nil,
-        package: nil
+        package: nil,
+        index: 0
       )
 
     {:ok, socket}
@@ -38,7 +39,8 @@ defmodule DepentanceWeb.GraphLive do
     """
   end
 
-  def handle_cast({:set_package, package}, socket) do
+  def handle_cast({:set_package, package, msg_index}, %{assigns: %{index: index}} = socket)
+      when msg_index > index do
     socket =
       cond do
         package && package.name == socket.assigns.input_name ->
@@ -70,7 +72,7 @@ defmodule DepentanceWeb.GraphLive do
 
       case response do
         {:ok, package} ->
-          GenServer.cast(live_pid, {:set_package, package})
+          GenServer.cast(live_pid, {:set_package, package, socket.assigns.index + 1})
 
         _ ->
           Logger.warn("Could not get package #{name}")
