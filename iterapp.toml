@@ -1,6 +1,7 @@
 replicas = 1
 emoji = "🙅"
 port = 4000
+default_environment="prod"
 
 [env.prod]
 SECRET_KEY_BASE = { encrypted = "ha8VbhJ3JKz815uqptPOlIFi7F1n2M58nwZZKbzhT3UCMXnSX4-k2FIigUtzzHTuG8JxGeYr7CGWy3hFUWA7Z30MrE8gxpmOd49LOJcqXgg8OBI4q4WVEnxkp8WYwvKNUOMzA5c8QvBEYVtWXmW7boKShHUj2E6RJ5VdgOCHvEmGlc38ajlto_5GloM3mafiJNIVJ93RGZJK1Ff1Y-FjbxYPi9MFRB0nxuUCX0WIIwc" }
