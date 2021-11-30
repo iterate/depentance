@@ -1,0 +1,9 @@
+replicas = 1
+emoji = "🙅"
+port = 4000
+
+[env.prod]
+SECRET_KEY_BASE = { encrypted = "ha8VbhJ3JKz815uqptPOlIFi7F1n2M58nwZZKbzhT3UCMXnSX4-k2FIigUtzzHTuG8JxGeYr7CGWy3hFUWA7Z30MrE8gxpmOd49LOJcqXgg8OBI4q4WVEnxkp8WYwvKNUOMzA5c8QvBEYVtWXmW7boKShHUj2E6RJ5VdgOCHvEmGlc38ajlto_5GloM3mafiJNIVJ93RGZJK1Ff1Y-FjbxYPi9MFRB0nxuUCX0WIIwc" }
+
+[env.common]
+SECRET_KEY_BASE = { encrypted = "1b7yIgxpiWQ_wcGbkzDq2yRxhttGXHbDugrjUs06EzDJmdreaIavyIqcGWWD5EOTt2q6BN_XYEekuvCID6F5AT0c31R8ESkw9fYbBoAWMukiOjR33hXTsU8NNLSVUFrf1E9ir1_IcT-mt7PD3bKmZWtm9gFOEzXdSCuLK7feJDBDrKWDuDKD1AWWwlr1uTN18bsgQCRFzcnewbWp69czpd_Vhw" }
