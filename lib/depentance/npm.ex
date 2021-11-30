@@ -21,8 +21,12 @@ defmodule Depentance.Npm do
       |> Finch.request(__MODULE__)
 
     case response.status do
-      200 -> {:ok, Package.from_json(response.body)}
-      _ -> {:error, :not_cool}
+      200 ->
+        {:ok, Package.from_json(response.body)}
+
+      _ ->
+        Logger.debug("Call to NPM Registry for info on pkg #{package_name} failed")
+        {:error, :not_cool}
     end
   end
 end

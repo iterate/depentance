@@ -2,8 +2,6 @@ defmodule DepentanceWeb.GraphLive do
   require Logger
   use DepentanceWeb, :live_view
 
-  alias Depentance.Npm
-
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
@@ -32,9 +30,7 @@ defmodule DepentanceWeb.GraphLive do
     </form>
     <br />
     <%= if @package do %>
-     <h2><%= @package.name %></h2>
-     <p><%= @package.description %></p>
-     <p><%= Npm.Package.get_version(@package, @version_input) %> </p>
+      <DepentanceWeb.Live.PackageVersion.render package={@package} selected_version={@version_input} />
     <% end %>
     """
   end
@@ -44,10 +40,14 @@ defmodule DepentanceWeb.GraphLive do
     socket =
       cond do
         package && package.name == socket.assigns.input_name ->
-          assign(socket, package: package, version_input: List.first(package.versions))
+          assign(socket,
+            package: package,
+            version_input: List.first(package.versions),
+            index: index
+          )
 
         package == nil ->
-          assign(socket, package: nil, version_input: nil)
+          assign(socket, package: nil, version_input: nil, index: index)
 
         true ->
           socket
@@ -75,7 +75,7 @@ defmodule DepentanceWeb.GraphLive do
           GenServer.cast(live_pid, {:set_package, package, socket.assigns.index + 1})
 
         _ ->
-          Logger.warn("Could not get package #{name}")
+          nil
       end
     end)
 

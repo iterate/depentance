@@ -10,7 +10,15 @@ defmodule Depentance.Npm.Package do
       description = map["description"]
 
       versions =
-        map["versions"] |> Enum.map(fn {k, _v} -> Version.parse!(k) end) |> Enum.sort(:desc)
+        case map["versions"] do
+          nil ->
+            []
+
+          versions ->
+            versions
+            |> Enum.map(fn {k, _v} -> Version.parse!(k) end)
+            |> Enum.sort(:desc)
+        end
 
       %Package{name: name, description: description, versions: versions}
     else
