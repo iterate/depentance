@@ -8,7 +8,8 @@ defmodule DepentanceWeb.GraphLive do
         input_name: nil,
         version_input: nil,
         package: nil,
-        index: 0
+        index: %{package: 0, version: 0},
+        package_version: nil
       )
 
     {:ok, socket}
@@ -30,24 +31,61 @@ defmodule DepentanceWeb.GraphLive do
     </form>
     <br />
     <%= if @package do %>
-      <DepentanceWeb.Live.PackageVersion.render package={@package} selected_version={@version_input} />
+      <%= if @package_version do %>
+        <DepentanceWeb.Live.PackageVersion.render package_version={@package_version} />
+      <% else %>
+        <DepentanceWeb.Live.PackageOverview.render package={@package} />
+      <% end %>
     <% end %>
     """
   end
 
-  def handle_cast({:set_package, package, msg_index}, %{assigns: %{index: index}} = socket)
-      when msg_index > index do
+  def handle_cast(
+        {:set_package, package, msg_index},
+        %{assigns: %{index: %{package: pkg_index} = index}} = socket
+      )
+      when msg_index > pkg_index do
     socket =
       cond do
         package && package.name == socket.assigns.input_name ->
           assign(socket,
             package: package,
             version_input: List.first(package.versions),
-            index: index
+            index: %{index | package: pkg_index}
           )
 
         package == nil ->
-          assign(socket, package: nil, version_input: nil, index: index)
+          assign(socket,
+            package: nil,
+            version_input: nil,
+            index: %{index | package: pkg_index}
+          )
+
+        true ->
+          socket
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_cast(
+        {:set_package_version, package_version, msg_index},
+        %{assigns: %{index: %{version: vrsn_index} = index}} = socket
+      )
+      when msg_index > vrsn_index do
+    socket =
+      cond do
+        package_version && package_version.name == socket.assigns.input_name ->
+          assign(socket,
+            package_version: package_version,
+            index: %{index | version: vrsn_index}
+          )
+
+        package_version == nil ->
+          assign(socket,
+            package_version: nil,
+            index: %{index | version: vrsn_index}
+          )
 
         true ->
           socket
@@ -61,6 +99,23 @@ defmodule DepentanceWeb.GraphLive do
         %{"_target" => ["version"], "version" => version},
         socket
       ) do
+    live_pid = self()
+
+    spawn(fn ->
+      response = Depentance.Npm.get_package_version_info(socket.assigns.package.name, version)
+
+      case response do
+        {:ok, package_version} ->
+          GenServer.cast(
+            live_pid,
+            {:set_package_version, package_version, socket.assigns.index.version + 1}
+          )
+
+        _ ->
+          nil
+      end
+    end)
+
     {:noreply, assign(socket, version_input: version)}
   end
 
@@ -72,7 +127,7 @@ defmodule DepentanceWeb.GraphLive do
 
       case response do
         {:ok, package} ->
-          GenServer.cast(live_pid, {:set_package, package, socket.assigns.index + 1})
+          GenServer.cast(live_pid, {:set_package, package, socket.assigns.index.package + 1})
 
         _ ->
           nil

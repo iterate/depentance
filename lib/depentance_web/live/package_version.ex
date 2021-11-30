@@ -5,13 +5,16 @@ defmodule DepentanceWeb.Live.PackageVersion do
 
   def render(assigns) do
     ~H"""
-    <h2><%= @package.name %></h2>
-      <%= if @package.description do %>
-        <p><%= @package.description %></p>
+    <h2><%= @package_version.name %></h2>
+      <%= if @package_version.version do %>
+        <p><%= @package_version.version %></p>
       <% end %>
-      <%= if @package.versions && @selected_version do %>
-        <p><%= Npm.Package.get_version(@package, @selected_version) %></p>
+      <%= if @package_version.deprecated do %>
+        <p class="deprecated"><%= @package_version.deprecated %></p>
+      <% end %>      <%= if @package_version.description do %>
+        <p><%= @package_version.description %></p>
       <% end %>
+
     """
   end
 end
